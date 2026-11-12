@@ -1,0 +1,18 @@
+title = "Free repository secret guard"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "convex-deploy-key"
+description = "Convex deployment credential"
+regex = '''(?:dev|prod|preview):[a-z0-9-]+\|[A-Za-z0-9+/=_-]{20,}'''
+keywords = ["dev:", "prod:", "preview:"]
+
+[[rules]]
+id = "private-env-assignment"
+description = "Private application credential assigned a literal value"
+regex = '''(?i)(?:ingestion[_-]?token|convex[_-]?deploy[_-]?key|clerk[_-]?secret[_-]?key|autumn[_-]?secret[_-]?key|resend[_-]?api[_-]?key|openai[_-]?api[_-]?key|stripe[_-]?secret[_-]?key|deepgram[_-]?api[_-]?key|revenuecat[_-]?secret[_-]?key)["'\s]*[:=][\s"']*([A-Za-z0-9_./+|:=\-]{20,})'''
+secretGroup = 1
+entropy = 3.0
+keywords = ["token", "key"]
