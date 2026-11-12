@@ -158,7 +158,8 @@ def snapshot():
     # Scan tracked bytes from the Git index, never untracked private .env files.
     check_paths(git("ls-files", "-z"))
     with tempfile.TemporaryDirectory(prefix="secret-guard-") as temporary:
-        git("checkout-index", "--all", "--prefix=" + Path(temporary).as_posix() + "/")
+        git("checkout-index", "--all", "--ignore-skip-worktree-bits",
+            "--prefix=" + Path(temporary).as_posix() + "/")
         scan("dir", temporary)
 
 

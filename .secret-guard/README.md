@@ -7,8 +7,10 @@ subscription, API key or paid service is required.
 ## Install on each clone
 
 Requirements: Git, Python 3.9 or newer, and internet access for the first scanner
-download. Linux, macOS and Windows x64/arm64 are supported. On Windows use Git
-Bash and a Python installation accessible to Git. Run from the repository root:
+download. Use Linux or macOS x64/arm64. On Windows, run the hooks inside WSL
+with Git and Python installed there. The scanner also has native Windows
+binaries, but native Windows hook chaining has not been validated.
+Run from the repository root:
 
 ```bash
 python3 .secret-guard/guard.py install

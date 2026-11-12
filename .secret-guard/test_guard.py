@@ -79,6 +79,29 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(self.guard("staged").returncode, 0)
         self.assertEqual(self.guard("snapshot").returncode, 0)
 
+    def test_empty_credential_templates_do_not_consume_next_line(self):
+        self.write(".env.production.example", "STRIPE_SECRET_KEY=\nSTRIPE_WEBHOOK_SECRET=\nOPENAI_API_KEY=\nCONVEX_DEPLOY_KEY=\n")
+        self.git("add", ".")
+        self.assertEqual(self.guard("staged").returncode, 0)
+        self.assertEqual(self.guard("snapshot").returncode, 0)
+
+    def test_custom_application_token_rule(self):
+        value = hashlib.sha256(b"synthetic ingestion fixture").hexdigest()
+        self.write("settings.py", 'INGESTION_TOKEN="' + value + '"\n')
+        self.git("add", ".")
+        result = self.guard("staged")
+        self.assert_blocked(result)
+        self.assertNotIn(value, result.stdout + result.stderr)
+        self.assertIn("private-env-assignment", result.stderr)
+
+    def test_snapshot_includes_sparse_checkout_files(self):
+        self.write("omitted/secret.py", 'TOKEN="' + SYNTHETIC + '"\n')
+        self.git("add", ".")
+        self.commit()
+        self.git("sparse-checkout", "set", "--no-cone", "/.secret-guard/", "/README.md")
+        self.assertFalse((self.root / "omitted/secret.py").exists())
+        self.assert_blocked(self.guard("snapshot"))
+
     def test_secret_added_then_deleted_still_blocks_range(self):
         self.write("sample.py", 'TOKEN="' + SYNTHETIC + '"\n')
         self.git("add", ".")
